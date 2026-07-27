@@ -1,6 +1,5 @@
-import * as sistemaArquivos from 'fs';
-import * as caminho from 'path';
 import { Imagem } from './imagem';
+import { lerConteudoImagem } from './leitor-imagem';
 
 /**
  * Classe para manipular imagens no formato PPM (Portable Pixmap).
@@ -100,16 +99,11 @@ export class ImagemPPM extends Imagem {
 /**
  * Abre um arquivo PPM
  */
-export function abrirPPM(
+export async function abrirPPM(
     interpretador: { diretorioBase: string },
     caminhoArquivo: string
-): ImagemPPM {
-    const caminhoResolvido = resolveCaminhoComBaseInterpretador(
-        interpretador.diretorioBase,
-        caminhoArquivo
-    );
-
-    const conteudo = sistemaArquivos.readFileSync(caminhoResolvido, 'utf-8');
+): Promise<ImagemPPM> {
+    const conteudo = await lerConteudoImagem(interpretador, caminhoArquivo);
     return parserPPM(conteudo);
 }
 
@@ -143,14 +137,4 @@ function parserPPM(conteudo: string): ImagemPPM {
     }
 
     return imagem;
-}
-
-function resolveCaminhoComBaseInterpretador(
-    diretorioBase: string,
-    caminhoOuArquivo: string
-): string {
-    if (caminhoOuArquivo.startsWith('.')) {
-        return caminho.join(diretorioBase, caminhoOuArquivo);
-    }
-    return caminhoOuArquivo;
 }

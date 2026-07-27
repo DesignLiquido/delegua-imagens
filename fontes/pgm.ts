@@ -1,6 +1,5 @@
-import * as sistemaArquivos from 'fs';
-import * as caminho from 'path';
 import { Imagem } from './imagem';
+import { lerConteudoImagem } from './leitor-imagem';
 
 /**
  * Classe para manipular imagens no formato PGM (Portable Graymap).
@@ -62,16 +61,11 @@ export class ImagemPGM extends Imagem {
 /**
  * Abre um arquivo PGM
  */
-export function abrirPGM(
+export async function abrirPGM(
     interpretador: { diretorioBase: string },
     caminhoArquivo: string
-): ImagemPGM {
-    const caminhoResolvido = resolveCaminhoComBaseInterpretador(
-        interpretador.diretorioBase,
-        caminhoArquivo
-    );
-
-    const conteudo = sistemaArquivos.readFileSync(caminhoResolvido, 'utf-8');
+): Promise<ImagemPGM> {
+    const conteudo = await lerConteudoImagem(interpretador, caminhoArquivo);
     return parserPGM(conteudo);
 }
 
@@ -102,14 +96,4 @@ function parserPGM(conteudo: string): ImagemPGM {
     }
 
     return imagem;
-}
-
-function resolveCaminhoComBaseInterpretador(
-    diretorioBase: string,
-    caminhoOuArquivo: string
-): string {
-    if (caminhoOuArquivo.startsWith('.')) {
-        return caminho.join(diretorioBase, caminhoOuArquivo);
-    }
-    return caminhoOuArquivo;
 }

@@ -1,6 +1,5 @@
-import * as sistemaArquivos from 'fs';
-import * as caminho from 'path';
 import { Imagem } from './imagem';
+import { lerConteudoImagem } from './leitor-imagem';
 
 /**
  * Classe para manipular imagens no formato PBM (Portable Bitmap).
@@ -75,16 +74,11 @@ export class ImagemPBM extends Imagem {
 /**
  * Abre um arquivo PBM
  */
-export function abrirPBM(
+export async function abrirPBM(
     interpretador: { diretorioBase: string },
     caminhoArquivo: string
-): ImagemPBM {
-    const caminhoResolvido = resolveCaminhoComBaseInterpretador(
-        interpretador.diretorioBase,
-        caminhoArquivo
-    );
-
-    const conteudo = sistemaArquivos.readFileSync(caminhoResolvido, 'utf-8');
+): Promise<ImagemPBM> {
+    const conteudo = await lerConteudoImagem(interpretador, caminhoArquivo);
     return parserPBM(conteudo);
 }
 
@@ -114,14 +108,4 @@ function parserPBM(conteudo: string): ImagemPBM {
     }
 
     return imagem;
-}
-
-function resolveCaminhoComBaseInterpretador(
-    diretorioBase: string,
-    caminhoOuArquivo: string
-): string {
-    if (caminhoOuArquivo.startsWith('.')) {
-        return caminho.join(diretorioBase, caminhoOuArquivo);
-    }
-    return caminhoOuArquivo;
 }
